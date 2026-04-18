@@ -11,7 +11,6 @@ getgenv().loadstring = function(code, ...)
     return original_loadstring(code, ...)
 end
 
--- ПЕРЕХВАТ HttpGet (видишь ВСЕ URL которые скрипт загружает)
 local original_httpget = game.HttpGet
 game.HttpGet = function(self, url, ...)
     dump_count = dump_count + 1
