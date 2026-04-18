@@ -1,0 +1,25 @@
+_G.MY_KEY_IS = "otNlKfSQpcMkrcLRObcsSXSJgZGJmVIk"
+
+local original_loadstring = loadstring
+local dump_count = 0
+
+getgenv().loadstring = function(code, ...)
+    dump_count = dump_count + 1
+    local name = "hoho_dump_" .. dump_count .. ".lua"
+    writefile(name, tostring(code))
+    warn("[DUMP] " .. name .. " | " .. #code .. " bytes")
+    return original_loadstring(code, ...)
+end
+
+-- ПЕРЕХВАТ HttpGet (видишь ВСЕ URL которые скрипт загружает)
+local original_httpget = game.HttpGet
+game.HttpGet = function(self, url, ...)
+    dump_count = dump_count + 1
+    local name = "hoho_http_" .. dump_count .. ".txt"
+    local result = original_httpget(self, url, ...)
+    writefile(name, "-- URL: " .. url .. "\n\n" .. tostring(result))
+    warn("[HTTP] " .. url .. " -> " .. name)
+    return result
+end
+
+loadstring(game:HttpGet('https://raw.githubusercontent.com/acsu123/HohoV2/refs/heads/main/ScriptLoad.lua'))()
