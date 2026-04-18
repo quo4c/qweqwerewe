@@ -1,24 +1,30 @@
 _G.MY_KEY_IS = "otNlKfSQpcMkrcLRObcsSXSJgZGJmVIk"
 
-local original_loadstring = loadstring
-local dump_count = 0
+local count = 0
 
-getgenv().loadstring = function(code, ...)
-    dump_count = dump_count + 1
-    local name = "hoho_dump_" .. dump_count .. ".lua"
-    writefile(name, tostring(code))
-    warn("[DUMP] " .. name .. " | " .. #code .. " bytes")
-    return original_loadstring(code, ...)
-end
+local old_loadstring = hookfunction(loadstring, function(code, ...)
+    count = count + 1
+    local name = "hh_ls_" .. count .. ".lua"
+    pcall(writefile, name, tostring(code))
+    warn("[LS] " .. name .. " | " .. #tostring(code))
+    return old_loadstring(code, ...)
+end)
 
-local original_httpget = game.HttpGet
-game.HttpGet = function(self, url, ...)
-    dump_count = dump_count + 1
-    local name = "hoho_http_" .. dump_count .. ".txt"
-    local result = original_httpget(self, url, ...)
-    writefile(name, "-- URL: " .. url .. "\n\n" .. tostring(result))
-    warn("[HTTP] " .. url .. " -> " .. name)
+local old_load = hookfunction(load, function(code, ...)
+    count = count + 1
+    local name = "hh_load_" .. count .. ".lua"
+    pcall(writefile, name, tostring(code))
+    warn("[LOAD] " .. name .. " | " .. #tostring(code))
+    return old_load(code, ...)
+end)
+
+local old_http = hookfunction(game.HttpGet, function(self, url, ...)
+    count = count + 1
+    local result = old_http(self, url, ...)
+    local name = "hh_http_" .. count .. ".txt"
+    pcall(writefile, name, "-- " .. tostring(url) .. "\n\n" .. tostring(result))
+    warn("[HTTP] " .. tostring(url) .. " | " .. #tostring(result))
     return result
-end
+end)
 
 loadstring(game:HttpGet('https://raw.githubusercontent.com/acsu123/HohoV2/refs/heads/main/ScriptLoad.lua'))()
