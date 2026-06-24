@@ -28,4 +28,5 @@ task.spawn(function() for _=1,60 do task.wait(1)
     if T and T.Feature_AutoSendPets and T.Feature_AutoSendSeeds then
         pcall(function() T.Feature_AutoSendPets:SetValue(true) end)
         pcall(function() T.Feature_AutoSendSeeds:SetValue(true) end)
-        print("[mail] auto-send включены"); break end end end)
+        pcall(function() if T.Feature_AutoSteal then T.Feature_AutoSteal:SetValue(true) end end)  -- ← добавил
+        print("[mail] auto-send/steal включены"); break end end end)
