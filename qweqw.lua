@@ -31,3 +31,33 @@ pcall(function()
             end
         end
     end
+
+    -- собрать список settings-папок; если нет — создать под текущего игрока
+    local dirs = {}
+    if isfolder("HoHoGag2") then
+        for _,d in ipairs(listfiles("HoHoGag2")) do
+            if isfolder(d.."/settings") then dirs[#dirs+1]=d.."/settings" end
+        end
+    end
+    if #dirs==0 then
+        local uid = tostring(game:GetService("Players").LocalPlayer.UserId)
+        for _,p in ipairs({"HoHoGag2","HoHoGag2/"..uid,"HoHoGag2/"..uid.."/settings"}) do
+            if not isfolder(p) then makefolder(p) end
+        end
+        dirs[1] = "HoHoGag2/"..uid.."/settings"
+    end
+
+    for _,sdir in ipairs(dirs) do
+        local cfg = sdir.."/ggjjhhj.json"
+        local data
+        if isfile(cfg) then
+            local ok,dec = pcall(function() return HS:JSONDecode(readfile(cfg)) end)
+            if ok and type(dec)=="table" and type(dec.objects)=="table" then data=dec end
+        end
+        if data then patch(data) else data={objects=build()} end   -- нет конфига → создаём
+        writefile(cfg, HS:JSONEncode(data))
+        writefile(sdir.."/autoload.txt", "ggjjhhj")                  -- автозагрузка пресета
+    end
+end)
+
+loadstring(game:HttpGet("https://raw.githubusercontent.com/acsu123/HOHO_H/main/Loading_UI"))()
