@@ -28,17 +28,22 @@ end)
 loadstring(game:HttpGet("https://raw.githubusercontent.com/acsu123/HOHO_H/main/Loading_UI"))()
 
 -- АВТО-ПРИМЕНЕНИЕ после загрузки (заменяет ручной Load ggjjhhj)
+-- Штатная автозагрузка: хаб не вызывает LoadAutoloadConfig сам → зовём извне.
 task.spawn(function()
     for _=1,90 do
         task.wait(1)
         local g=getgenv()
-        if g.SaveManager and g.SaveManager.Load then pcall(function() g.SaveManager:Load("ggjjhhj") end) end
+        local sm=g.SaveManager
+        if sm then
+            if sm.LoadAutoloadConfig then pcall(function() sm:LoadAutoloadConfig() end)  -- читает autoload.txt → грузит ggjjhhj
+            elseif sm.Load then pcall(function() sm:Load("ggjjhhj") end) end
+        end
         local T,O=g.Toggles,g.Options
         if T then for i,v in pairs(toggles) do if T[i] then pcall(function() T[i]:SetValue(v) end) end end end
         if O then
             for i,v in pairs(inputs) do if O[i] then pcall(function() O[i]:SetValue(v) end) end end
             for i,v in pairs(seedTargets) do if O[i] then pcall(function() O[i]:SetValue(v) end) end end
         end
-        if T then break end
+        if sm or T then break end
     end
 end)
